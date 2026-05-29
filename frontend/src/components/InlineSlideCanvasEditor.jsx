@@ -19,7 +19,7 @@ import { getSlideTheme } from "../utils/slideThemes";
 import ProgressiveSlideImage from "./ProgressiveSlideImage";
 
 const baseEditableClass =
-  "rounded-lg px-2 py-1 outline-none ring-0 transition hover:bg-white/60 focus:bg-white/85";
+  "w-full rounded-lg bg-transparent px-2 py-1 text-left outline-none ring-0 transition placeholder:text-slate-400 hover:bg-white/60 focus:bg-white/85";
 
 const imageTransformStyle = (slide) => ({
   objectPosition: `${Number(slide?.imageStyle?.offsetX ?? 50)}% ${Number(
@@ -36,46 +36,54 @@ const promptSuggestions = [
 ];
 
 const EditableText = ({
-  as: Component = "div",
   className,
   value,
   onChange,
   placeholder,
   multiline = false
 }) => {
-  const editableRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    if (!editableRef.current) {
+    if (!multiline || !inputRef.current) {
       return;
     }
 
-    const currentValue = multiline
-      ? editableRef.current.innerText
-      : editableRef.current.textContent;
-
-    if (currentValue !== (value || "")) {
-      editableRef.current.textContent = value || "";
-    }
+    inputRef.current.style.height = "0px";
+    inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
   }, [multiline, value]);
 
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef}
+        value={value || ""}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        spellCheck
+        rows={1}
+        dir="ltr"
+        className={clsx(
+          baseEditableClass,
+          "resize-none overflow-hidden whitespace-pre-wrap",
+          className
+        )}
+      />
+    );
+  }
+
   return (
-    <Component
-      ref={editableRef}
-      contentEditable
-      suppressContentEditableWarning
+    <input
+      ref={inputRef}
+      type="text"
+      value={value || ""}
+      onChange={(event) => onChange(event.target.value)}
+      placeholder={placeholder}
       spellCheck
+      autoComplete="off"
+      dir="ltr"
       className={clsx(baseEditableClass, className)}
-      onInput={(event) => {
-        const nextValue = multiline
-          ? event.currentTarget.innerText
-          : event.currentTarget.textContent;
-        onChange(nextValue || "");
-      }}
-      data-placeholder={placeholder}
-    >
-      {value}
-    </Component>
+    />
   );
 };
 
@@ -92,7 +100,10 @@ const BulletList = ({ slide, onBulletChange, dark = false }) => (
         <EditableText
           value={point}
           onChange={(nextValue) => onBulletChange(bulletIndex, nextValue)}
-          className={clsx("w-full text-sm leading-6", dark ? "text-white" : "text-slatePro-700")}
+          className={clsx(
+            "text-sm leading-6",
+            dark ? "text-white placeholder:text-slate-300/70" : "text-slatePro-700 placeholder:text-slatePro-400"
+          )}
           placeholder="Bullet point"
         />
       </li>
@@ -394,7 +405,7 @@ export default function InlineSlideCanvasEditor({
         onChange={(nextValue) => onFieldChange("title", nextValue)}
         className={clsx(
           "font-display text-3xl font-bold leading-tight",
-          dark ? "text-white" : "text-slatePro-900"
+          dark ? "text-white placeholder:text-slate-300/70" : "text-slatePro-900 placeholder:text-slatePro-400"
         )}
         placeholder="Slide title"
       />
@@ -404,7 +415,10 @@ export default function InlineSlideCanvasEditor({
         multiline
         value={slide.summary}
         onChange={(nextValue) => onFieldChange("summary", nextValue)}
-        className={clsx("text-sm leading-7", dark ? "text-slate-100" : "text-slatePro-600")}
+        className={clsx(
+          "text-sm leading-7",
+          dark ? "text-slate-100 placeholder:text-slate-300/70" : "text-slatePro-600 placeholder:text-slatePro-400"
+        )}
         placeholder="Add supporting narrative"
       />
     </div>

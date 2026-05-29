@@ -63,6 +63,32 @@ const typingSuggestion = ({ text }) => (
   </span>
 );
 
+const OutlineEditableField = ({ value, onChange, placeholder }) => {
+  const fieldRef = useRef(null);
+
+  useEffect(() => {
+    if (!fieldRef.current) {
+      return;
+    }
+
+    fieldRef.current.style.height = "0px";
+    fieldRef.current.style.height = `${fieldRef.current.scrollHeight}px`;
+  }, [value]);
+
+  return (
+    <textarea
+      ref={fieldRef}
+      rows={1}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      placeholder={placeholder}
+      dir="ltr"
+      spellCheck
+      className="w-full resize-none overflow-hidden bg-transparent text-left text-sm font-semibold leading-6 text-slate-100 outline-none placeholder:text-slate-500"
+    />
+  );
+};
+
 const PromptComposer = ({
   draft,
   onDraftChange,
@@ -214,13 +240,11 @@ const OutlineSection = ({ draft, onOutlineChange }) => (
           className="flex items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950/60 px-4 py-3"
         >
           <span className="h-2 w-2 rounded-full bg-cyan-300" />
-          <input
+          <OutlineEditableField
             value={heading}
-            onChange={(event) => onOutlineChange(index, event.target.value)}
-            className="w-full bg-transparent text-sm font-semibold text-slate-100 outline-none placeholder:text-slate-500"
+            onChange={(nextValue) => onOutlineChange(index, nextValue)}
             placeholder={`Heading ${index + 1}`}
           />
-          <span className="h-5 w-0.5 animate-pulse bg-cyan-300/70" />
         </motion.label>
       ))}
     </div>
