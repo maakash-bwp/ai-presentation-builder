@@ -363,12 +363,3 @@ yarn-error.log*
 ## License
 
 MIT
-
----
-
-If you want, I can next create:
-
-- a polished `backend/.env.example`
-- a polished `frontend/.env.example`
-- a professional `.gitignore`
-- and the exact Git commands to push this repo to GitHub safely
